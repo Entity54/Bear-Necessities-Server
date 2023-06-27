@@ -33,7 +33,9 @@ const set_Wallet = () => {
   // Create a new Wallet instance with the private key
   moonbeam_signer = new ethers.Wallet(process.env.ACCOUNT_3000_PRIVATE_KEY);
   fantom_signer = new ethers.Wallet(process.env.ACCOUNT_3000_PRIVATE_KEY);
+  // fantom_signer = new ethers.Wallet(process.env.ACCOUNT_DT_PRIVATE_KEY);
 
+  
 
   //MOONBEAM
   Moonbeam_RPC = "https://rpc.api.moonbeam.network";
@@ -94,8 +96,11 @@ const requestOrderAXLUSDCfinancing = async () => {
 
       if (finance_orderNonces.length > 0)
       {
-
-          const tx =  await AxelarFantomSatelite_instance.requestOrderAXLUSDCfinancing();
+          const gasEstimate = await AxelarFantomSatelite_instance.estimateGas.requestOrderAXLUSDCfinancing();
+          const gasPremium = gasEstimate.mul(130).div(100);
+          console.log(`requestOrderAXLUSDCfinancing => gasEstimate: ${gasEstimate} gasPremium: ${gasPremium}`);
+        
+          const tx =  await AxelarFantomSatelite_instance.requestOrderAXLUSDCfinancing({ gasPrice: 160000000000, gasLimit: gasPremium });
          
           try {
             const receipt = await tx.wait();
@@ -137,7 +142,11 @@ const financeOrdersTo_Execute = async () => {
       {
           console.log(` ===> WILL NOW RUN financeOrdersTo_Execute BECAUSE finance_Order_Nonces_ToSend.length: ${finance_Order_Nonces_ToSend.length} > 0 <===`);
 
-          const tx =  await AxelarFantomSatelite_instance.financeOrdersTo_Execute( {value: ethers.utils.parseEther("1.0")} );
+          const gasEstimate = await AxelarFantomSatelite_instance.estimateGas.financeOrdersTo_Execute({value: ethers.utils.parseEther("1.0")});
+          const gasPremium = gasEstimate.mul(130).div(100);
+          console.log(`financeOrdersTo_Execute => gasEstimate: ${gasEstimate} gasPremium: ${gasPremium}`);
+
+          const tx =  await AxelarFantomSatelite_instance.financeOrdersTo_Execute( { gasPrice: 160000000000, gasLimit: gasPremium , value: ethers.utils.parseEther("1.0")} );
           
           try {
             const receipt = await tx.wait();
@@ -180,7 +189,11 @@ const financeOrdersTo_Delete = async () => {
       {
           console.log(` ===> WILL NOW RUN finance_Order_Nonces_ToDelete BECAUSE finance_Order_Nonces_ToDelete.length: ${finance_Order_Nonces_ToDelete.length} > 0 <===`);
 
-          const tx =  await AxelarFantomSatelite_instance.financeOrdersTo_Delete( {value: ethers.utils.parseEther("1.0")} );
+          const gasEstimate = await AxelarFantomSatelite_instance.estimateGas.financeOrdersTo_Delete({value: ethers.utils.parseEther("1.0")});
+          const gasPremium = gasEstimate.mul(130).div(100);
+          console.log(`financeOrdersTo_Delete => gasEstimate: ${gasEstimate} gasPremium: ${gasPremium}`);
+
+          const tx =  await AxelarFantomSatelite_instance.financeOrdersTo_Delete( { gasPrice: 160000000000, gasLimit: gasPremium , value: ethers.utils.parseEther("1.0")} );
 
           try {
             const receipt = await tx.wait();
@@ -222,7 +235,11 @@ const requestPendingOrdersFinancing = async () => {
       {
           console.log(` ===> WILL NOW RUN requestPendingOrdersFinancing ExecutionOrdersEngineFromFantom_instance BECAUSE pendingOrders_FromFANTOM_USDC.length: ${pendingOrders_FromFANTOM_USDC.length} > 0 <===`);
 
-          const tx =  await ExecutionOrdersEngineFromFantom_instance.requestPendingOrdersFinancing( {value: ethers.utils.parseEther("1.5")} );
+          const gasEstimate = await ExecutionOrdersEngineFromFantom_instance.estimateGas.requestPendingOrdersFinancing({value: ethers.utils.parseEther("1.5")});
+          const gasPremium = gasEstimate.mul(130).div(100);
+          console.log(`requestPendingOrdersFinancing => gasEstimate: ${gasEstimate} gasPremium: ${gasPremium}`);
+
+          const tx =  await ExecutionOrdersEngineFromFantom_instance.requestPendingOrdersFinancing( {  gasLimit: gasPremium , value: ethers.utils.parseEther("1.5")} );
 
           try {
             const receipt = await tx.wait();
@@ -264,7 +281,11 @@ const delete_Unfinanced_Orders = async () => {
       {
           console.log(` ===> WILL NOW RUN delete_Unfinanced_Orders ExecutionOrdersEngineFromFantom_instance BECAUSE unfinancedOrderNoncesToDelete.length: ${unfinancedOrderNoncesToDelete.length} > 0 <===`);
 
-          const tx =  await ExecutionOrdersEngineFromFantom_instance.delete_Unfinanced_Orders();
+          const gasEstimate = await ExecutionOrdersEngineFromFantom_instance.estimateGas.delete_Unfinanced_Orders();
+          const gasPremium = gasEstimate.mul(130).div(100);
+          console.log(`delete_Unfinanced_Orders => gasEstimate: ${gasEstimate} gasPremium: ${gasPremium}`);
+
+          const tx =  await ExecutionOrdersEngineFromFantom_instance.delete_Unfinanced_Orders({ gasLimit: gasPremium });
 
           try {
             const receipt = await tx.wait();
@@ -369,7 +390,7 @@ const executeOrder_Moonbeam_BuyWithUSDC = async (orderNonce) => {
     const gasPremium = gasEstimate.mul(130).div(100);
     console.log(`executeOrder_Moonbeam_BuyWithUSDC => gasEstimate: ${gasEstimate} gasPremium: ${gasPremium} orderNonce: ${orderNonce}`);
 
-    const tx =  await ExecutionOrdersEngineFromFantom_instance.executeOrder_Moonbeam_BuyWithUSDC(orderNonce);
+    const tx =  await ExecutionOrdersEngineFromFantom_instance.executeOrder_Moonbeam_BuyWithUSDC(orderNonce, { gasLimit: gasPremium });
  
     try {
       const receipt = await tx.wait();
@@ -446,7 +467,7 @@ const executeOrder_Moonbeam_NONUSDC = async (orderNonce) => {
     const gasPremium = gasEstimate.mul(130).div(100);
     console.log(`executeOrder_Moonbeam_NONUSDC => gasEstimate: ${gasEstimate} gasPremium: ${gasPremium} orderNonce: ${orderNonce}`);
 
-    const tx =  await ExecutionOrdersEngineFromFantom_instance.executeOrder_Moonbeam_NONUSDC(orderNonce, {value: ethers.utils.parseEther("1.5")} );
+    const tx =  await ExecutionOrdersEngineFromFantom_instance.executeOrder_Moonbeam_NONUSDC(orderNonce, { gasLimit: gasPremium, value: ethers.utils.parseEther("1.5")} );
 
 
     try {
